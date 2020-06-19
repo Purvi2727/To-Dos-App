@@ -1,0 +1,21 @@
+.listContainerDiv{
+    width: 500px;
+    margin: 0 auto;
+    text-align: left;
+    background-color: #fff;
+}
+
+ul{
+    padding: 0;
+}
+
+ul li{
+    list-style: none;
+    padding: 10px;
+    border: 1px solid #ccc;
+}
+
+ul li span{
+    width: 80%;
+    margin-left: 10px;
+}
