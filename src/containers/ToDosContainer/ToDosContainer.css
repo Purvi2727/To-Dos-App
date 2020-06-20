@@ -1,0 +1,16 @@
+.inputContainer{
+    background: #fff;
+    width: 500px;    
+    margin: 0 auto;
+    box-sizing: border-box;
+    padding: 10px;
+    border: 1px solid #ccc;
+    position: relative;
+    text-align: left;
+}
+
+.inputContainer input[type="text"]{
+    width: 85%;
+    height: 20px;
+    margin-left: 10px;
+}
