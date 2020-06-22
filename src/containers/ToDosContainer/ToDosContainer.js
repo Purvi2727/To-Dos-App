@@ -105,30 +105,19 @@ class ToDosContainer extends Component {
             }
             array[i].todos && this.fnIterateDelete(array[i].todos, ids);
         }
-
         return array[0];
     }
 
-    fnFilterEachItem = (array, type) => {
+    fnFilterEachItem = (array) => {
         var i = array.length;
 
         while (i--) {
             let checkEachItem = { ...array[i] };
-
-            if (type === "active") {
-                if (checkEachItem.completed) {
-                    array.splice(i, 1);
-                    continue;
-                }
+            if (checkEachItem.completed) {
+                array.splice(i, 1);
+                continue;
             }
-            if (type === "completed") {
-                if (checkEachItem.completed) {
-                    array.splice(i, 1);
-                    continue;
-                }
-            }
-
-            array[i].todos && this.fnFilterEachItem(array[i].todos, type);
+            array[i].todos && this.fnFilterEachItem(array[i].todos);
         }
         return array[0];
     }
@@ -194,7 +183,7 @@ class ToDosContainer extends Component {
     fnMarkCompleteAll = (array, value) => {
         var i = array.length;
         while (i--) {
-            array[i].completed = true;
+            array[i].completed = value;
             array[i].todos && this.fnMarkCompleteAll(array[i].todos, value);
         }
         return array[0];
@@ -210,25 +199,42 @@ class ToDosContainer extends Component {
         })
     }
 
+    filterCompleted = (todoList) => {
+        const newFilteredTodoList = [];
+        const internalTodoLooper = (list) => {
+            list.map((todo) => {
+                if (todo.completed) {
+                    newFilteredTodoList.push(todo);
+                }
+                return internalTodoLooper(todo.todos);
+            });
+        }
+
+        internalTodoLooper(todoList);
+
+        return newFilteredTodoList;
+    }
+
 
     setFilter = (_filterType) => {
-        let filteredList = [];
+        let filteredList = null;
         switch (_filterType) {
             case "all":
-                filteredList = [...this.state.todos];
+                filteredList = this.state.todos;
                 break;
             case "active":
                 let updatedList = [this.state];
-                updatedList = this.fnFilterEachItem(updatedList, "active");
-                filteredList = updatedList.todos;
+                updatedList = this.fnFilterEachItem(updatedList);
+                if (updatedList !== undefined) {
+                    filteredList = updatedList.todos;
+                } else {
+                    filteredList = []
+                }
+
                 break;
             case "completed":
-                console.log(">>>>>>>>>>>>>")
-                console.log(this.state);
-                let completedList = [this.state];
-                completedList = this.fnFilterEachItem(completedList, "completed");
-                console.log(completedList);
-                filteredList = completedList.todos;
+                //console.log(this.filterCompleted([this.state.todos]));
+                filteredList = [...this.state.todos];
                 break;
             default:
                 filteredList = [...this.state.todos];
@@ -264,11 +270,9 @@ class ToDosContainer extends Component {
             return !item.completed;
         }).length;
 
-        let filterState = null;
+        let filterState = { ...this.state, todos: this.state.todos }
 
-        if (this.state.filterType === "all") {
-            filterState = { ...this.state, todos: this.state.todos }
-        } else {
+        if (this.state.filterType !== "all") {
             filterState = { ...this.state, todos: this.state.filteredState };
         }
 
@@ -286,12 +290,13 @@ class ToDosContainer extends Component {
                         addTodos={this.addTodos} />
                 </div>
 
-
-                <ListContainer
-                    filterState={filterState}
-                    markCompleteHandler={this.markCompleteHandler}
-                    deleteListItem={this.deleteListItem}
-                    addListItem={this.addListItem} />
+                {filterState === undefined ? null :
+                    <ListContainer
+                        filterState={filterState}
+                        markCompleteHandler={this.markCompleteHandler}
+                        deleteListItem={this.deleteListItem}
+                        addListItem={this.addListItem} />
+                }
 
                 <FilterContainer count={count} setFilter={this.setFilter} clearAllCompleted={this.clearCompleted} />
             </div >
