@@ -89,32 +89,12 @@ const initialState = {
     ]
 }
 
-/*const fnAddListItem = (array, ids) => {
-    console.log(array);
-    var i = array.length;
-    while (i--) {
-        if (ids.indexOf(array[i].id) !== -1) {
-            let newStr = { threadId: i, id: Date.now(), title: "{{ Temporary Dummy data }}", completed: false, todos: [] }
-            array[i].todos.push(newStr);
-            continue;
-        }
-        array[i].todos && fnAddListItem(array[i].todos, ids);
-    }
-    return array[0];
-}*/
 
 const reducer = (state = initialState, action) => {
     switch (action.type) {
         case actionTypes.ADD_TODO:
-            // let updatedList = [state];
-            //updatedList = fnAddListItem(updatedList, [action.id]);
-            //let newList = { ...updatedList };            
+            //code for adding todos
             break;
-        // return {
-        //     ...state,
-        //     todos: newList.todos
-        // }
-
         default:
             return {
                 ...state
