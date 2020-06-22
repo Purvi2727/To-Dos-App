@@ -23,7 +23,7 @@
     margin-left: 10px;
 }
 
-.listContainerDiv .closeIcon{
+.listContainerDiv .closeIcon, .listContainerDiv .addIcon{
     display: none;
 }
 
@@ -36,9 +36,26 @@
     color: maroon;
     display: block;
     cursor: pointer;
+    z-index: 1;
 }
 
-/*.listContainerDiv ul{
-    list-style-type: none;
-    padding-left: 0;
-}*/
+.listItem:hover .addIcon{
+    position: absolute;
+    right: 30px;
+    top: 1px;
+    font-weight: bold;
+    text-transform: uppercase;
+    color: #66bb6a;
+    display: block;
+    cursor: pointer;
+    font-size: 25px;
+}
+
+.listContainerDiv ul{
+    list-style-type: none;    
+}
+
+.listContainerDiv ul:first-child{
+    padding-left: 0; 
+}
+

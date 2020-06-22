@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import ListContainer from '../ListContainer/ListContainer';
 import FilterContainer from '../FilterContainer/FilterContainer';
 import Input from '../../components/UI/Input/Input';
+// import { connect } from 'react-redux';
+// import * as todosActions from '../../store/actions/todosActions';
 
 import './ToDosContainer.css';
 
@@ -65,10 +67,14 @@ class ToDosContainer extends Component {
         filterType: "all"
     }
 
+    componentDidMount() {
+        console.log("[TodosContainer.js] componentDidMount");
+        console.log(this.props.todos);
+    }
+
     addTodos = (event) => {
         //storeNewTodos
-
-        let newToDosList = { id: Date.now(), title: event.target.value, completed: false };
+        let newToDosList = { id: Date.now(), threadId: Date.now(), title: event.target.value, completed: false, todos: [] };
 
         this.setState({
             ...this.state,
@@ -89,18 +95,83 @@ class ToDosContainer extends Component {
         })
     }
 
+    fnIterate = (state = this.state, _id, _value, _action) => {
+        const updatedList = state;
+        let newObj = {};
 
-    markCompleteHandler = (event, _id) => {
-        let updatedList = [...this.state.todos];
-        updatedList.forEach(item => {
-            if (item.id === _id) {
-                item.completed = event.target.checked;
+
+        for (const key in state) {
+            if (key === "todos" && updatedList.todos.length !== 0) {
+                let newArr = updatedList.todos;
+                for (let i = 0; i < updatedList.todos.length; i++) {
+                    let item = updatedList.todos[i];
+                    if (item.id === parseInt(_id)) {
+                        item.completed = _value;
+                    }
+                    this.fnIterate(state.todos[i], _id, _value, _action);
+                }
+                newObj[key] = [...newArr];
+            } else {
+                newObj = { ...updatedList };
             }
-        })
+        }
+
         this.setState({
             ...this.state,
-            todos: updatedList
+            todos: newObj.todos
         })
+    }
+
+    fnIterateDelete = (array, ids) => {
+        var i = array.length;
+        while (i--) {
+            if (ids.indexOf(array[i].id) !== -1) {
+                array.splice(i, 1);
+                continue;
+            }
+            array[i].todos && this.fnIterateDelete(array[i].todos, ids);
+        }
+
+        return array[0];
+    }
+
+    deleteListItem = (_id) => {
+
+        let updatedList = [this.state];
+        updatedList = this.fnIterateDelete(updatedList, [_id]);
+        let newList = { ...updatedList };
+        this.setState({
+            ...this.state,
+            todos: newList.todos
+        })
+    }
+
+    fnAddListItem = (array, ids) => {
+        var i = array.length;
+        while (i--) {
+
+            if (ids.indexOf(array[i].id) !== -1) {
+                let newStr = { threadId: i, id: Date.now(), title: "{{ Temporary Dummy data }}", completed: false, todos: [] }
+                array[i].todos.push(newStr);
+                continue;
+            }
+            array[i].todos && this.fnAddListItem(array[i].todos, ids);
+        }
+        return array[0];
+    }
+
+    addListItem = (_id) => {
+        let updatedList = [this.state];
+        updatedList = this.fnAddListItem(updatedList, [_id]);
+        let newList = { ...updatedList };
+        this.setState({
+            ...this.state,
+            todos: newList.todos
+        })
+    }
+
+    markCompleteHandler = (event, _id) => {
+        this.fnIterate(this.state, _id, event.target.checked, "markComplete");
     }
 
     completeAll = (event) => {
@@ -133,17 +204,7 @@ class ToDosContainer extends Component {
         })
     }
 
-    deleteListItem = (_id) => {
-        const updatedList = [...this.state.todos];
-        const newList = updatedList.filter(item => {
-            return item.id !== _id;
-        })
 
-        this.setState({
-            ...this.state,
-            todos: newList
-        })
-    }
 
     render() {
         let count = 0;
@@ -183,7 +244,7 @@ class ToDosContainer extends Component {
 
                     <Input
                         type="text"
-                        placeholdertext="What needs to be done?"
+                        placeholdertext="What needs to be done? (Press Enter to add)"
                         changeHandler={this.changeHandler}
                         addTodos={this.addTodos} />
                 </div>
@@ -192,7 +253,8 @@ class ToDosContainer extends Component {
                 <ListContainer
                     filterState={filterState}
                     markCompleteHandler={this.markCompleteHandler}
-                    deleteListItem={this.deleteListItem} />
+                    deleteListItem={this.deleteListItem}
+                    addListItem={this.addListItem} />
 
                 <FilterContainer count={count} setFilter={this.setFilter} clearAllCompleted={this.clearCompleted} />
             </div >
